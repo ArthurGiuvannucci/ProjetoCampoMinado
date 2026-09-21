@@ -10,8 +10,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.Random;
+import javax.swing.Timer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -32,7 +34,9 @@ public class Jogo2 extends javax.swing.JFrame {
     int quantidadeBombas = 15;
     int quantidadeCasasAbertas= 0;
     boolean jogoEncerrado= false;
-  
+    int segundosPassados= 0;
+    Timer cronometro;
+    
     public Jogo2() {
         initComponents();
      painelCampo.setPreferredSize(new Dimension(800,600));// setPreferredSize pode defirnir o tamanho do tabuleiro 
@@ -106,8 +110,9 @@ public class Jogo2 extends javax.swing.JFrame {
     
     public void IniciarJogo(){
     //CAMAR O METODO adicionarBombas
-  
+   LimparJogo();
     AdicionarBombas();
+    IniciarCronometro();
     //deppois percisamos iniciara os botoes do jogo
     for (int coluna =0; coluna <= 9; coluna++){
          for (int linhas = 0; linhas<= 9; linhas++ ){
@@ -119,6 +124,7 @@ public class Jogo2 extends javax.swing.JFrame {
          }//fim do segundo for
     }  // fim do primeiro for 
    btnIniciar.setText ("REINICIAR");
+   
     }// fim do iniciarJogo
     
     public void abrirBotao (int linha, int coluna){
@@ -135,26 +141,107 @@ public class Jogo2 extends javax.swing.JFrame {
     JButton botao = btnCampos[linha][coluna];
     //se o botao tiver uma bomba, entao vamos motrar a bomba a ele
         if (bombas[linha][coluna]){
-            ImageIcon imgBomba = new ImageIcon(getClass().getResource("/Interface/bomb(1).png"));  
+            ImageIcon imgBomba = new ImageIcon(getClass().getResource("/assets/bomb.png"));  
           //colocar a imagem dentro do botao 
             botao.setIcon(imgBomba);
-       
+            FinalizarJogo (false);
         }else {
-              ImageIcon imgBandeira = new ImageIcon(getClass().getResource("/Interface/flag.png"));
+              ImageIcon imgBandeira = new ImageIcon(getClass().getResource("/assets/flag.png"));
                botao.setIcon(imgBandeira);
                return;
         } 
     }//fim do metodo abrirBotao
     
+    //ESSE METODO INFORMA QUANTO A PESSOA PERDE OU GANHA O JOGO
+    public void FinalizarJogo (boolean venceu){
+        MostrarBombas();
+        jogoEncerrado=true; // Vamos informar que o jogo acabou
+        cronometro.stop();
+        //verificar se a pessoa venceu ou nao 
+        if (venceu){
+             JOptionPane.showMessageDialog(this,"Parabéns vôce venceu!");// showMessageDialog abre uma tela de visualização com o resultado programado
+          LimparJogo();    
+        }else {
+             JOptionPane.showMessageDialog(this,"Ops, vôce perdeu o jogo!");// this serve para 
+             LimparJogo();
+        }
     
     
     
+    }; // FIM DO FinalizarJogo
     
+    public void VerificarVitoria (){
+    //armazena a quantidade de casas com bandeiras
+    int casaSemBomba=100 - quantidadeBombas; 
+    //se a pessoa abrir todas as bandeiras e não abriu nenhuma bomba
+    //então ela venceu o jogo, e o finlizarJogo imprime a mensagem
+    if (quantidadeCasasAbertas == casaSemBomba){
+        FinalizarJogo (true);        
+       
+      }
     
+    }
     
+    public void IniciarCronometro(){
+    //zerar cronometro caso tenha tido um jogo anterior 
+    if (cronometro != null ){
+      cronometro.stop();
+     }
+     
+     segundosPassados = 0;
+     tfTempo.setText ("00:00");//tfTempo e o nome da caixa do cronometro
+     
+     //converter oo tempo em minutos e segundos
+     //cronometro conta de 1 em 1 segundo, e vai conerter
+     cronometro = new Timer (1000, Evento -> {
+      segundosPassados++; 
+      int minutos = segundosPassados / 60;
+      int horas = minutos / 60;
+      int segundo = segundosPassados % 60;
+      //mostrar o tempo dentor da variavel
+      tfTempo.setText(String.format("%02d:%02d:%02d",horas, minutos, segundosPassados));
+      
+     });
+     cronometro.start();
+     
+    }
     
+    public void LimparJogo (){
+        quantidadeCasasAbertas = 0;
+     for (int coluna =0; coluna <= 9; coluna ++){
+        for (int linha= 0; linha <= 9; linha ++){
+         bombas [linha][coluna] = false;
+         abertos [linha][coluna]= false;
+         
+         //limpesa dos botoes 
+        JButton botao = btnCampos [linha][coluna];
+        botao.setIcon(null);
+     
+        }//fimm do 2° for
+        
+   }//fim do 1° for
+     jogoEncerrado = false;
+  AdicionarBombas();
+  IniciarCronometro();
+  
+    }//fim LimparJogo
     
-    
+    public void MostrarBombas (){
+        for (int coluna=0; coluna<=9;coluna++){
+        for (int linha= 0; linha <=9; linha ++){
+            
+            
+    JButton botao = btnCampos[linha][coluna];
+    //se o botao tiver uma bomba, entao vamos motrar a bomba a ele
+        if (bombas[linha][coluna]){
+            ImageIcon imgBomba = new ImageIcon(getClass().getResource("/assets/bomb.png"));  
+          //colocar a imagem dentro do botao 
+            botao.setIcon(imgBomba);
+           
+        }
+        }//2° for
+    }//1° for
+    }//mostrarBombas
     
     
     
